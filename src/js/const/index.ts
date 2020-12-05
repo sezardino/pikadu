@@ -2,6 +2,7 @@ type UserType = {
   email: string,
   password: string,
   displayName: string,
+  photo?: string,
 }
 
 const users: Array<UserType> = [
@@ -10,4 +11,6 @@ const users: Array<UserType> = [
 	{email: 'tes3@mail.com', password: '123456', displayName: 'Lime'},
 ];
 
-export {users, UserType};
+const mailRegExp:RegExp = /^\w+@\w+\.\w{2,}$/
+
+export {users, UserType, mailRegExp};
