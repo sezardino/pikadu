@@ -194,23 +194,42 @@
           <input type="password" class="login-input login-password" name="password" minlength="3" placeholder="password" required>
           <div class="login-wrapper">
             <a href="#" class="login-link login-forget">Забыли пароль?</a>
-            <a href="#" class="login-link login-signip">Регистрация</a>
+            <a href="#" class="login-link login-sign-in">Регистрация</a>
           </div>
           <button class="login-button login-signup">Войти</button>
         </form>
       </div>
 
       <div class="user">
-        <a href="#" class="user-info">
-          <img width="40" height="40" src="./assets/img/avatar.jpeg" alt="photo: user" class="user-avatar">
-          <span class="user-name">islamovartem</span>
-        </a>
-        <!-- /.user-info -->
-        <a href="#" class="exit">
-          <svg class="icon icon-exit">
-            <use xlink:href="./assets/img/icons.svg#exit"></use>
-          </svg>
-        </a>
+        <div class="user-container">
+          <a href="#" class="user-info">
+            <img width="40" height="40" src="./assets/img/avatar.jpeg" alt="photo: user" class="user-avatar">
+            <span class="user-name">islamovartem</span>
+          </a>
+          <!-- /.user-info -->
+          <a href="#" class="edit">
+            <img src="./assets/img/edit.svg" alt="edit" class="icon icon-edit">
+          </a>
+          <a href="#" class="exit">
+            <svg class="icon icon-exit">
+              <use xlink:href="./assets/img/icons.svg#exit"></use>
+            </svg>
+          </a>
+        </div>
+        <div class="user-edit">
+          <div class="user-header">
+            <h2 class="user-title">Редактирование</h2>
+          </div>
+          <form class="user-form">
+            <label class="user-label">
+              <input type="text" class="user-input user-name-input" name="name" minlength="3" placeholder="User name" required>
+            </label>
+            <label class="user-label">
+              <input type="url" class="user-input user-photo-input" name="avatar" minlength="3" placeholder="photo URL" required>
+            </label>
+            <button class="user-button user-save">Сохранить</button>
+          </form>
+        </div>
         <!-- /.exit -->
       </div>
       <!-- /.user -->
