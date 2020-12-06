@@ -2,7 +2,7 @@ type UserType = {
 	email: string,
 	password: string,
 	displayName: string,
-	photo?: string,
+	photo: string,
 };
 
 type PostType = {
@@ -12,18 +12,38 @@ type PostType = {
 	likes: number,
 	comments: number,
 	date: string,
-	author: string,
+	author: UserType,
 };
 
 const users: Array<UserType> = [
-	{email: 'test1@mail.com', password: '1234', displayName: 'Max'},
-	{email: 'test2@mail.com', password: '12345', displayName: 'Cat'},
-	{email: 'tes3@mail.com', password: '123456', displayName: 'Lime'},
+	{
+		email: 'test1@mail.com',
+		password: '1234',
+		displayName: 'Max',
+		photo: './assets/img/avatar.jpeg',
+	},
+	{
+		email: 'test2@mail.com',
+		password: '12345',
+		displayName: 'Cat',
+		photo: './assets/img/avatar.jpeg',
+	},
+	{
+		email: 'tes3@mail.com',
+		password: '123456',
+		displayName: 'Lime',
+		photo: './assets/img/avatar.jpeg',
+	},
 ];
 
 const posts: Array<PostType> = [
 	{
-		author: 'test1@mail.com',
+		author: {
+			email: 'test1@mail.com',
+			password: '1234',
+			displayName: 'Max',
+			photo: './assets/img/avatar.jpeg',
+		},
 		date: '11.11.2011',
 		title: 'Заголовок 1',
 		text:
@@ -33,7 +53,12 @@ const posts: Array<PostType> = [
 		comments: 5,
 	},
 	{
-		author: 'test2@mail.com',
+		author: {
+			email: 'test1@mail.com',
+			password: '1234',
+			displayName: 'Max',
+			photo: './assets/img/avatar.jpeg',
+		},
 		date: '11.11.2015',
 		title: 'Заголовок 2',
 		text:
@@ -43,7 +68,12 @@ const posts: Array<PostType> = [
 		comments: 15,
 	},
 	{
-		author: 'test1@mail.com',
+		author: {
+			email: 'test1@mail.com',
+			password: '1234',
+			displayName: 'Max',
+			photo: './assets/img/avatar.jpeg',
+		},
 		date: '11.11.2020',
 		title: 'Заголовок 3',
 		text:

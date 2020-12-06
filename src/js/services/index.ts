@@ -3,11 +3,13 @@ const getDisplayName = (email: string): string => {
 	return displayName;
 };
 
-const addVisibleClass = (...args: (HTMLAnchorElement | HTMLDivElement)[]): void => {
+const tagsCreator = (string: string): Array<string> => string.split(',').map((item) => item.trim());
+
+const addVisibleClass = (...args: HTMLElement[]): void => {
 	args.map((item) => item.classList.add('visible'));
 };
-const removeVisibleClass = (...args: (HTMLAnchorElement | HTMLDivElement)[]): void => {
+const removeVisibleClass = (...args: HTMLElement[]): void => {
 	args.map((item) => item.classList.remove('visible'));
 };
 
-export {getDisplayName, addVisibleClass, removeVisibleClass};
+export {getDisplayName, addVisibleClass, removeVisibleClass, tagsCreator};

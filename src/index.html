@@ -38,7 +38,7 @@
   </header>
 
   <div class="content">
-    <main class="posts">
+    <main class="posts visible">
       <section class="post">
         <div class="post-body">
           <h2 class="post-title">Заголовлок поста</h2>
@@ -182,6 +182,19 @@
         <!-- /.post-footer -->
       </section>
     </main>
+    <form action="#" class="add-post">
+      <input type="text" name="post-title" id="newTitle" class="add-title" placeholder="Заголовок поста">
+      <textarea name="post-text" id="newText" class="add-text" placeholder="Текст вашего поста"></textarea>
+      <input type="text" name="post-tags" id="newTags" class="add-tags" placeholder="Ввудите тэги через запятую">
+      <div class="add-buttons">
+        <button type="submit" class="button add-button">
+          <svg class="icon icon-fire">
+            <use xlink:href="./assets/img/icons.svg#fire"></use>
+          </svg>
+          Опубликовать пост
+        </button>
+      </div>
+    </form>
     <!-- /.posts -->
     <aside class="sidebar">
 
