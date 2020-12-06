@@ -1,5 +1,5 @@
 import {users, UserType, mailRegExp} from '../../const';
-import {getDisplayName} from '../../services/';
+import {getDisplayName, addVisibleClass, removeVisibleClass} from '../../services/';
 
 interface IUser {
 	user: UserType | null;
@@ -42,7 +42,12 @@ const setUser: IUser = {
 		if (user) {
 			alert('Данная почта уже используется');
 		} else if (!user) {
-			const newUser = {email, password, displayName: getDisplayName(email)};
+			const newUser = {
+				email,
+				password,
+				displayName: getDisplayName(email),
+				photo: './assets/img/avatar.jpeg',
+			};
 			users.push(newUser);
 			this.authUser(newUser);
 			handler();
@@ -76,20 +81,30 @@ const user = (): void => {
 	const userAvatarInput: HTMLInputElement = document.querySelector('.user-photo-input');
 	const editBlock: HTMLDivElement = document.querySelector('.user-edit');
 	const userBlock: HTMLDivElement = document.querySelector('.user');
-	const userName = document.querySelector('.user-name');
+	const userName: HTMLSpanElement = document.querySelector('.user-name');
 	const userAvatar: HTMLImageElement = document.querySelector('.user-avatar');
 	const editForm: HTMLFormElement = document.querySelector('.user-form');
+	const newPostButton: HTMLAnchorElement = document.querySelector('.button-new-post');
+
+	const showAuthContent = (user: UserType): void => {
+		const {displayName, photo} = user;
+		userName.textContent = displayName;
+		userAvatar.src = photo;
+		removeVisibleClass(loginBlock);
+		addVisibleClass(newPostButton, userBlock);
+	};
+
+	const showUnAuthContent = (): void => {
+		removeVisibleClass(userBlock);
+		addVisibleClass(loginBlock);
+	};
 
 	const authDomToggle = () => {
-		const user: UserType | null = setUser.user;
+		const user = setUser.user;
 		if (user) {
-			userName.textContent = user.displayName;
-			userAvatar.src = user.photo || userAvatar.src;
-			loginBlock.style.display = 'none';
-			userBlock.style.display = 'block';
+			showAuthContent(user);
 		} else {
-			loginBlock.style.display = '';
-			userBlock.style.display = '';
+			showUnAuthContent();
 		}
 	};
 
