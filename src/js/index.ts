@@ -1,5 +1,6 @@
 import user from './modules/user';
 import posts from './modules/posts';
+import './firebase';
 
 user();
 posts();

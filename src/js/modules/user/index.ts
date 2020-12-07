@@ -1,62 +1,22 @@
-import {users, UserType, mailRegExp} from '../../const';
+import {registration, logIn, authListener, logOut, updateUserData} from '../../firebase/';
+import {users, UserType, IUser} from '../../const';
 import {getDisplayName, addVisibleClass, removeVisibleClass} from '../../services/';
-
-interface IUser {
-	user: UserType | null;
-	getUser: (this: IUser, email: string) => UserType | undefined;
-	authUser: (this: IUser, user: UserType) => void;
-	logIn: (this: IUser, email: string, password: string, handler: () => void) => void;
-	logOut: (this: IUser, handler: () => void) => void;
-	signUp: (this: IUser, email: string, password: string, handler: () => void) => void;
-	editUser: (this: IUser, userName: string, userAvatar: string, handler: () => void) => void;
-}
 
 const setUser: IUser = {
 	user: null,
-	logIn(email, password, handler) {
-		if (!mailRegExp.test(email)) {
-			alert('Invalid email');
-			return;
-		}
-		const user: UserType | undefined = this.getUser(email);
-		if (!user) {
-			alert('Пользователь с такими данными не найден');
-		} else if (user && user.password !== password) {
-			alert('Wrong password');
-		} else {
-			this.authUser(user);
-			handler();
-		}
+	initUser(handler) {
+		authListener(this, handler);
 	},
-	logOut(handler) {
-		this.user = null;
-		handler();
+	logIn(email, password) {
+		logIn(email, password);
 	},
+
+	logOut,
 	signUp(email, password, handler) {
-		console.log(users);
-		if (!mailRegExp.test(email)) {
-			alert('Invalid email');
-			return;
-		}
-		const user: UserType | undefined = this.getUser(email);
-		if (user) {
-			alert('Данная почта уже используется');
-		} else if (!user) {
-			const newUser = {
-				email,
-				password,
-				displayName: getDisplayName(email),
-				photo: './assets/img/avatar.jpeg',
-			};
-			users.push(newUser);
-			this.authUser(newUser);
-			handler();
-		}
+		registration(email, password, handler);
 	},
 	editUser(userName, userAvatar, handler) {
-		this.user.displayName = userName;
-		this.user.photo = userAvatar;
-		handler();
+		updateUserData(userName, userAvatar, handler);
 	},
 
 	getUser(email) {
@@ -87,9 +47,9 @@ const user = (): void => {
 	const newPostButton: HTMLAnchorElement = document.querySelector('.button-new-post');
 
 	const showAuthContent = (user: UserType): void => {
-		const {displayName, photo} = user;
-		userName.textContent = displayName;
-		userAvatar.src = photo;
+		const {displayName, photoURL, email} = user;
+		userName.textContent = displayName ? displayName : getDisplayName(email);
+		userAvatar.src = photoURL ? photoURL : './assets/img/avatar.jpeg';
 		removeVisibleClass(loginBlock);
 		addVisibleClass(newPostButton, userBlock);
 	};
@@ -101,6 +61,7 @@ const user = (): void => {
 
 	const authDomToggle = () => {
 		const user = setUser.user;
+		loginForm.reset();
 		if (user) {
 			showAuthContent(user);
 		} else {
@@ -116,10 +77,7 @@ const user = (): void => {
 		const email: string = emailInput.value;
 		const password: string = passwordInput.value;
 
-		setUser.logIn(email, password, authDomToggle);
-		if (setUser.user) {
-			loginForm.reset();
-		}
+		setUser.logIn(email, password);
 	});
 
 	registrationButton.addEventListener('click', (evt: Event) => {
@@ -129,21 +87,19 @@ const user = (): void => {
 		const password: string = passwordInput.value;
 
 		setUser.signUp(email, password, authDomToggle);
-		if (setUser.user) {
-			loginForm.reset();
-		}
 	});
 
 	logOutButton.addEventListener('click', (evt: Event) => {
 		evt.preventDefault();
-		setUser.logOut(authDomToggle);
+		setUser.logOut();
 	});
 
 	editButton.addEventListener('click', (evt: Event) => {
+		const {email, displayName, photoURL} = setUser.user;
 		evt.preventDefault();
 		editBlock.classList.toggle('visible');
-		userNameInput.value = setUser.user.displayName;
-		userAvatarInput.value = setUser.user.photo || userAvatar.src;
+		userNameInput.value = displayName ? displayName : getDisplayName(email);
+		userAvatarInput.value = photoURL || userAvatar.src;
 	});
 
 	editForm.addEventListener('submit', (evt: Event): void => {
@@ -153,6 +109,8 @@ const user = (): void => {
 		setUser.editUser(userNameValue, userAvatarValue, authDomToggle);
 		editBlock.classList.remove('visible');
 	});
+
+	setUser.initUser(authDomToggle);
 };
 
 export {setUser};

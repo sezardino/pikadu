@@ -38,5 +38,8 @@
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0",
     "write-file-webpack-plugin": "^4.5.1"
+  },
+  "dependencies": {
+    "firebase": "^8.1.2"
   }
 }

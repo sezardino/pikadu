@@ -1,8 +1,7 @@
 type UserType = {
 	email: string,
-	password: string,
 	displayName: string,
-	photo: string,
+	photoURL: string,
 };
 
 type PostType = {
@@ -14,6 +13,17 @@ type PostType = {
 	date: string,
 	author: UserType,
 };
+
+interface IUser {
+	user: UserType | null;
+	initUser: (this: IUser, handler: () => void) => void;
+	getUser: (this: IUser, email: string) => UserType | undefined;
+	authUser: (this: IUser, user: UserType) => void;
+	logIn: (this: IUser, email: string, password: string) => void;
+	logOut: (this: IUser) => void;
+	signUp: (this: IUser, email: string, password: string, handler: () => void) => void;
+	editUser: (this: IUser, userName: string, userAvatar: string, handler: () => void) => void;
+}
 
 const users: Array<UserType> = [
 	{
@@ -86,4 +96,4 @@ const posts: Array<PostType> = [
 
 const mailRegExp: RegExp = /^\w+@\w+\.\w{2,}$/;
 
-export {users, UserType, mailRegExp, posts, PostType};
+export {users, UserType, mailRegExp, posts, PostType, IUser};
