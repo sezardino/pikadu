@@ -16,10 +16,11 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+const users = firebase.auth();
+const database = firebase.database();
 
 const registration = (email: string, password: string, handler: () => void): void => {
-	firebase
-		.auth()
+	users
 		.createUserWithEmailAndPassword(email, password)
 		.then(() => {
 			handler();
@@ -30,15 +31,14 @@ const registration = (email: string, password: string, handler: () => void): voi
 };
 
 const logIn = (email: string, password: string): void => {
-	firebase
-		.auth()
+	users
 		.signInWithEmailAndPassword(email, password)
 		.then(() => {})
 		.catch((error) => alert(error));
 };
 
 const authListener = (context: IUser, handler): void => {
-	firebase.auth().onAuthStateChanged((user) => {
+	users.onAuthStateChanged((user) => {
 		if (user) {
 			context.user = user;
 			handler();
@@ -50,16 +50,13 @@ const authListener = (context: IUser, handler): void => {
 };
 
 const logOut = () => {
-	firebase
-		.auth()
-		.signOut()
-		.catch((error) => {
-			alert(error);
-		});
+	users.signOut().catch((error) => {
+		alert(error);
+	});
 };
 
 const updateUserData = (displayName: string, photoURL: string, handler: () => void) => {
-	const user = firebase.auth().currentUser;
+	const user = users.currentUser;
 	user
 		.updateProfile({
 			displayName,
