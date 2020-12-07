@@ -1,144 +1,117 @@
-import {users, UserType, mailRegExp} from '../../const';
-import {getDisplayName} from '../../services/';
+import {registration, logIn, authListener, logOut, updateUserData} from '../../firebase/';
+import {users, UserType, IUser} from '../../const';
+import {getDisplayName, addVisibleClass, removeVisibleClass} from '../../services/';
 
-interface IUser {
-    user: UserType | null,
-    getUser: (this: IUser, email: string) => UserType | undefined,
-    authUser: (this: IUser, user: UserType) => void,
-    logIn: (this: IUser, email: string, password: string, handler: () => void) => void,
-    logOut: (this:IUser, handler: () => void) => void,
-    signUp: (this:IUser, email: string, password: string, handler: () => void) => void,
-    editUser: (this:IUser, userName: string, userAvatar: string, handler: () => void) => void,
-  }
+const setUser: IUser = {
+	user: null,
+	initUser(handler) {
+		authListener(this, handler);
+	},
+	logIn(email, password) {
+		logIn(email, password);
+	},
+
+	logOut,
+	signUp(email, password, handler) {
+		registration(email, password, handler);
+	},
+	editUser(userName, userAvatar, handler) {
+		updateUserData(userName, userAvatar, handler);
+	},
+
+	getUser(email) {
+		const user = users.find((item) => item.email === email);
+		return user;
+	},
+
+	authUser(user) {
+		this.user = user;
+	},
+};
 
 const user = (): void => {
-  const loginBlock: HTMLDivElement = document.querySelector('.login');
-  const loginForm:HTMLFormElement = document.querySelector('.login-form');
-  const emailInput: HTMLInputElement = document.querySelector('.login-email')
-  const passwordInput: HTMLInputElement = document.querySelector('.login-password')
-  const registrationButton: HTMLAnchorElement = document.querySelector('.login-sign-in')
-  const logOutButton:HTMLAnchorElement = document.querySelector('.exit');
-  const editButton:HTMLAnchorElement = document.querySelector('.edit');
-  const userNameInput:HTMLInputElement = document.querySelector('.user-name-input');
-  const userAvatarInput:HTMLInputElement = document.querySelector('.user-photo-input');
-  const editBlock:HTMLDivElement = document.querySelector('.user-edit');
-  const userBlock:HTMLDivElement = document.querySelector('.user');
-  const userName = document.querySelector('.user-name');
-  const userAvatar:HTMLImageElement = document.querySelector('.user-avatar');
-  const editForm:HTMLFormElement = document.querySelector('.user-form')
+	const loginBlock: HTMLDivElement = document.querySelector('.login');
+	const loginForm: HTMLFormElement = document.querySelector('.login-form');
+	const emailInput: HTMLInputElement = document.querySelector('.login-email');
+	const passwordInput: HTMLInputElement = document.querySelector('.login-password');
+	const registrationButton: HTMLAnchorElement = document.querySelector('.login-sign-in');
+	const logOutButton: HTMLAnchorElement = document.querySelector('.exit');
+	const editButton: HTMLAnchorElement = document.querySelector('.edit');
+	const userNameInput: HTMLInputElement = document.querySelector('.user-name-input');
+	const userAvatarInput: HTMLInputElement = document.querySelector('.user-photo-input');
+	const editBlock: HTMLDivElement = document.querySelector('.user-edit');
+	const userBlock: HTMLDivElement = document.querySelector('.user');
+	const userName: HTMLSpanElement = document.querySelector('.user-name');
+	const userAvatar: HTMLImageElement = document.querySelector('.user-avatar');
+	const editForm: HTMLFormElement = document.querySelector('.user-form');
+	const newPostButton: HTMLAnchorElement = document.querySelector('.button-new-post');
 
-  const setUser: IUser = {
-    user: null,
-    logIn(email, password, handler){
-      if(!mailRegExp.test(email)) {
-        alert('Invalid email')
-        return
-      }
-      const user:UserType | undefined = this.getUser(email);
-      if(!user) {
-        alert('Пользователь с такими данными не найден')
-      } else if(user && user.password !== password) {
-        alert('Wrong password')
-      } else {
-        this.authUser(user)
-        handler();
-      }
-    },
-    logOut(handler) {
-      this.user = null;
-      handler();},
-    signUp(email, password, handler){
-      console.log(users);
-      if(!mailRegExp.test(email)) {
-        alert('Invalid email')
-        return
-      }
-      const user:UserType | undefined = this.getUser(email);
-      console.log(user);
-      if(user) {
-        alert('Данная почта уже используется');
-      } else if(!user) {
-        const newUser = {email, password, displayName: getDisplayName(email)}
-        users.push(newUser);
-        this.authUser(newUser);
-        handler()
-      }
-    },
-    editUser(userName, userAvatar, handler) {
-      this.user.displayName = userName;
-      this.user.photo =userAvatar;
-      handler();
-    },
+	const showAuthContent = (user: UserType): void => {
+		const {displayName, photoURL, email} = user;
+		userName.textContent = displayName ? displayName : getDisplayName(email);
+		userAvatar.src = photoURL ? photoURL : './assets/img/avatar.jpeg';
+		removeVisibleClass(loginBlock);
+		addVisibleClass(newPostButton, userBlock);
+	};
 
-    getUser(email){
-      const user = users.find((item) => item.email === email)
-      return user
-    },
+	const showUnAuthContent = (): void => {
+		removeVisibleClass(userBlock);
+		addVisibleClass(loginBlock);
+	};
 
-    authUser(user){
-      this.user = user;
-    },
-  }
+	const authDomToggle = () => {
+		const user = setUser.user;
+		loginForm.reset();
+		if (user) {
+			showAuthContent(user);
+		} else {
+			showUnAuthContent();
+		}
+	};
 
-  const authDomToggle = () => {
-    const user: UserType | null = setUser.user;
-    if(user) {
-      userName.textContent = user.displayName;
-      userAvatar.src = user.photo || userAvatar.src;
-      loginBlock.style.display = 'none';
-      userBlock.style.display = 'block';
+	authDomToggle();
 
-    } else {
-      loginBlock.style.display = '';
-      userBlock.style.display = '';
-    }
-  }
+	loginForm.addEventListener('submit', (evt: Event) => {
+		evt.preventDefault();
 
-  authDomToggle()
+		const email: string = emailInput.value;
+		const password: string = passwordInput.value;
 
-  loginForm.addEventListener('submit', (evt:Event) => {
-    evt.preventDefault();
+		setUser.logIn(email, password);
+	});
 
-    const email:string = emailInput.value;
-    const password:string = passwordInput.value;
+	registrationButton.addEventListener('click', (evt: Event) => {
+		evt.preventDefault();
 
-    setUser.logIn(email, password, authDomToggle)
-    if(setUser.user) {
-      loginForm.reset();
-    }
-  })
+		const email: string = emailInput.value;
+		const password: string = passwordInput.value;
 
-  registrationButton.addEventListener('click', (evt: Event) => {
-    evt.preventDefault();
+		setUser.signUp(email, password, authDomToggle);
+	});
 
-    const email:string = emailInput.value;
-    const password:string = passwordInput.value;
+	logOutButton.addEventListener('click', (evt: Event) => {
+		evt.preventDefault();
+		setUser.logOut();
+	});
 
-    setUser.signUp(email, password, authDomToggle);
-    if(setUser.user) {
-      loginForm.reset();
-    }
-  })
+	editButton.addEventListener('click', (evt: Event) => {
+		const {email, displayName, photoURL} = setUser.user;
+		evt.preventDefault();
+		editBlock.classList.toggle('visible');
+		userNameInput.value = displayName ? displayName : getDisplayName(email);
+		userAvatarInput.value = photoURL || userAvatar.src;
+	});
 
-  logOutButton.addEventListener('click', (evt:Event) => {
-    evt.preventDefault();
-    setUser.logOut(authDomToggle)
-  })
+	editForm.addEventListener('submit', (evt: Event): void => {
+		evt.preventDefault();
+		const userNameValue: string = userNameInput.value;
+		const userAvatarValue: string = userAvatarInput.value;
+		setUser.editUser(userNameValue, userAvatarValue, authDomToggle);
+		editBlock.classList.remove('visible');
+	});
 
-  editButton.addEventListener('click', (evt:Event) => {
-    evt.preventDefault();
-    editBlock.classList.toggle('visible');
-    userNameInput.value = setUser.user.displayName;
-    userAvatarInput.value = setUser.user.photo || userAvatar.src
-  })
+	setUser.initUser(authDomToggle);
+};
 
-  editForm.addEventListener('submit', (evt: Event): void => {
-    evt.preventDefault();
-    const userNameValue: string =userNameInput.value;
-    const userAvatarValue: string =userAvatarInput.value;
-    setUser.editUser(userNameValue, userAvatarValue, authDomToggle)
-    editBlock.classList.remove('visible');
-  })
-}
-
-export default user
+export {setUser};
+export default user;

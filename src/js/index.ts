@@ -1,10 +1,13 @@
-import user from './modules/user'
+import user from './modules/user';
+import posts from './modules/posts';
+import './firebase';
 
-user()
+user();
+posts();
 
 let menuToggle = document.querySelector('#menu-toggle');
 let menu = document.querySelector('.sidebar');
 menuToggle.addEventListener('click', function (event) {
-  event.preventDefault();
-  menu.classList.toggle('visible');
-})
+	event.preventDefault();
+	menu.classList.toggle('visible');
+});
