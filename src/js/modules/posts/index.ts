@@ -1,4 +1,4 @@
-import {posts, PostType, UserType, IPosts} from '../../const/';
+import {PostType, IPosts} from '../../const/';
 import {addVisibleClass, removeVisibleClass, tagsCreator} from '../../services';
 import {setUser} from '../user';
 import {addPost, getPosts, postsListener} from '../../firebase/';
@@ -119,7 +119,6 @@ const post = (): void => {
 
 	showPosts();
 	setPosts.postsListener(() => setPosts.getPosts(showPosts));
-	// setPosts.getPosts(showPosts);
 };
 
 export default post;

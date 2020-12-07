@@ -1,5 +1,5 @@
 import {registration, logIn, authListener, logOut, updateUserData} from '../../firebase/';
-import {users, UserType, IUser} from '../../const';
+import {UserType, IUser} from '../../const';
 import {getDisplayName, addVisibleClass, removeVisibleClass} from '../../services/';
 
 const setUser: IUser = {
