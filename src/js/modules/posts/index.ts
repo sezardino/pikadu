@@ -1,16 +1,12 @@
-import {posts, PostType, UserType} from '../../const/';
+import {posts, PostType, UserType, IPosts} from '../../const/';
 import {addVisibleClass, removeVisibleClass, tagsCreator} from '../../services';
 import {setUser} from '../user';
-
-interface IPosts {
-	allPosts: Array<PostType>;
-	addPost: (this: IPosts, title: string, text: string, tags: string, author: UserType) => void;
-}
+import {addPost, getPosts, postsListener} from '../../firebase/';
 
 const setPosts: IPosts = {
-	allPosts: posts,
+	allPosts: [],
 	addPost(title, text, tags, author) {
-		this.allPosts.push({
+		addPost({
 			title,
 			text,
 			tags: tagsCreator(tags),
@@ -20,6 +16,10 @@ const setPosts: IPosts = {
 			comments: 0,
 		});
 	},
+	getPosts(handler) {
+		getPosts(this, handler);
+	},
+	postsListener,
 };
 
 const postTemplate = (post: PostType) => {
@@ -30,7 +30,7 @@ const postTemplate = (post: PostType) => {
 		tags,
 		likes,
 		comments,
-		author: {photo, displayName},
+		author: {photoURL, displayName},
 	} = post;
 	const tagsHtml = tags.map((item) => `<a href="#" class="tag">#${item}</a>`).join('');
 	return `
@@ -72,7 +72,7 @@ const postTemplate = (post: PostType) => {
           <a href="#" class="author-username">${displayName}</a>
           <span class="post-time">${date}</span>
         </div>
-        <a href="#" class="author-link"><img src=${photo} alt="avatar" class="author-avatar"></a>
+        <a href="#" class="author-link"><img src=${photoURL} alt="avatar" class="author-avatar"></a>
       </div>
     </div>
   </section>`;
@@ -82,11 +82,12 @@ const post = (): void => {
 	const postsContainer: HTMLDivElement = document.querySelector('.posts');
 	const addPostButton: HTMLAnchorElement = document.querySelector('.button-new-post');
 	const addPostForm: HTMLFormElement = document.querySelector('.add-post');
-	const addPostTitleInput: HTMLInputElement = addPostForm.querySelector('.add-text');
+	const addPostTitleInput: HTMLInputElement = addPostForm.querySelector('.add-title');
 	const addPostTagsInput: HTMLInputElement = addPostForm.querySelector('.add-tags');
 	const addPostTextarea: HTMLTextAreaElement = addPostForm.querySelector('.add-text');
 
 	const showPosts = () => {
+		console.log(setPosts.allPosts);
 		let postsContent: string = '';
 		setPosts.allPosts.forEach((item: PostType) => (postsContent += postTemplate(item)));
 		postsContainer.innerHTML = postsContent;
@@ -99,12 +100,17 @@ const post = (): void => {
 	});
 
 	addPostForm.addEventListener('submit', (evt: Event) => {
+		const {displayName, photoURL} = setUser.user;
+		const author = {
+			displayName,
+			photoURL,
+		};
 		evt.preventDefault();
 		setPosts.addPost(
 			addPostTitleInput.value,
 			addPostTextarea.value,
 			addPostTagsInput.value,
-			setUser.user
+			author
 		);
 		addVisibleClass(postsContainer, addPostButton);
 		removeVisibleClass(addPostForm);
@@ -112,6 +118,8 @@ const post = (): void => {
 	});
 
 	showPosts();
+	setPosts.postsListener(() => setPosts.getPosts(showPosts));
+	// setPosts.getPosts(showPosts);
 };
 
 export default post;

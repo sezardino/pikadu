@@ -1,7 +1,7 @@
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
-import {IUser} from '../const/';
+import {IUser, PostType, UserType, IPosts} from '../const/';
 
 // TODO: Add SDKs for Firebase products that you want to use
 //      `https://firebase.google.com/docs/web/setup#available-libraries` -->
@@ -70,4 +70,40 @@ const updateUserData = (displayName: string, photoURL: string, handler: () => vo
 		});
 };
 
-export {registration, logIn, authListener, logOut, updateUserData};
+const addPost = (post: PostType) => {
+	const posts = database.ref('posts');
+	const newPost = posts.push();
+	newPost.set(post);
+};
+
+const getPosts = (context: IPosts, handler: () => void) => {
+	return firebase
+		.database()
+		.ref('posts')
+		.once('value')
+		.then((snapshot) => {
+			if (snapshot.val()) {
+				const content: Array<PostType> = Object.values(snapshot.val());
+				context.allPosts = content;
+				handler();
+			}
+		});
+};
+
+const postsListener = (handler) => {
+	const postsRef = firebase.database().ref('posts');
+	postsRef.on('child_added', () => {
+		handler();
+	});
+};
+
+export {
+	registration,
+	logIn,
+	authListener,
+	logOut,
+	updateUserData,
+	addPost,
+	getPosts,
+	postsListener,
+};
